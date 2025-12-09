@@ -19,7 +19,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 8080,
+    port: 3000,
     allowedHosts: [
       ".manuspre.computer",
       ".manus.computer",
@@ -32,6 +32,6 @@ export default defineConfig({
   },
   preview: {
     host: true,
-    port: 8080,
+    port: 8080, // Zeabur 部署用
   },
 });

@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite --host --port 8080",
+    "dev": "vite --host --port 3000",
     "build": "vite build",
     "preview": "vite preview --host --port 8080",
     "check": "tsc --noEmit",
