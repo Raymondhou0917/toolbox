@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Shuffle, Plus, Check, X, Pencil } from "lucide-react";
+import { Trash2, Shuffle, Plus, Check, X, Pencil, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 // 預設名單組
@@ -48,6 +48,8 @@ const COLORS = [
   "#9B59B6", // Purple
   "#1ABC9C", // Teal
   "#34495E", // Dark Grey
+  "#E91E63", // Pink
+  "#00BCD4", // Cyan
 ];
 
 interface ListGroup {
@@ -107,6 +109,20 @@ export default function Wheel() {
   const activeGroup = listGroups.find(g => g.id === activeGroupId) || listGroups[0];
   const items = activeGroup?.items || [];
 
+  // 取得預設名單（用於重置功能）
+  const getDefaultItems = () => {
+    const defaultGroup = DEFAULT_LIST_GROUPS.find(g => g.id === activeGroupId);
+    return defaultGroup?.items || [];
+  };
+
+  // 檢查當前名單是否與預設不同（用於顯示重置按鈕）
+  const hasChanges = () => {
+    const defaultItems = getDefaultItems();
+    if (defaultItems.length === 0) return false; // 自訂名單組不顯示重置
+    if (items.length !== defaultItems.length) return true;
+    return items.some((item, index) => item !== defaultItems[index]);
+  };
+
   const drawWheel = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -141,13 +157,13 @@ export default function Wheel() {
     }
 
     // 繪製扇形
-    // 指針在右側（0度位置），所以第一個扇形的中心應該在 0 度
-    // 為了讓 index 0 的扇形中心對準指針，需要偏移 -sliceAngle/2
-    const baseOffset = -sliceAngle / 2;
+    // 指針在右側（0度位置）
+    // 扇形從 rotation 開始繪製，第 i 個扇形的範圍是 [rotation + i*sliceAngle, rotation + (i+1)*sliceAngle]
+    // 指針指向 0 度，所以要找出哪個扇形包含 0 度
     
     items.forEach((item, index) => {
-      const startAngle = baseOffset + index * sliceAngle + rotation;
-      const endAngle = baseOffset + (index + 1) * sliceAngle + rotation;
+      const startAngle = rotation + index * sliceAngle;
+      const endAngle = rotation + (index + 1) * sliceAngle;
 
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
@@ -162,16 +178,23 @@ export default function Wheel() {
       ctx.lineWidth = 4;
       ctx.stroke();
 
-      // Draw text
+      // Draw text - 根據選項數量調整字體大小
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate(startAngle + sliceAngle / 2);
       ctx.textAlign = "right";
       ctx.fillStyle = "#FFFFFF";
-      ctx.font = "bold 32px 'Noto Sans TC'";
+      
+      // 動態調整字體大小
+      const fontSize = items.length > 8 ? 24 : items.length > 6 ? 28 : 32;
+      ctx.font = `bold ${fontSize}px 'Noto Sans TC'`;
       ctx.shadowColor = "rgba(0,0,0,0.3)";
       ctx.shadowBlur = 4;
-      ctx.fillText(item.length > 8 ? item.slice(0, 8) + "..." : item, radius - 40, 10);
+      
+      // 動態調整文字截斷長度
+      const maxLength = items.length > 8 ? 5 : items.length > 6 ? 6 : 8;
+      const displayText = item.length > maxLength ? item.slice(0, maxLength) + "..." : item;
+      ctx.fillText(displayText, radius - 30, 8);
       ctx.restore();
     });
 
@@ -184,19 +207,33 @@ export default function Wheel() {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Draw pointer (在右側)
-    const pointerSize = 40;
+    // Draw pointer (在右側) - 改用更明顯的指針
+    const pointerSize = 35;
     ctx.save();
-    ctx.translate(centerX + radius + 10, centerY);
+    ctx.translate(centerX + radius + 5, centerY);
+    
+    // 指針外框
+    ctx.beginPath();
+    ctx.moveTo(5, 0);
+    ctx.lineTo(-pointerSize, -pointerSize/2 - 3);
+    ctx.lineTo(-pointerSize, pointerSize/2 + 3);
+    ctx.closePath();
+    ctx.fillStyle = "#1a1a1a";
+    ctx.shadowColor = "rgba(0,0,0,0.4)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 2;
+    ctx.fill();
+    
+    // 指針內部
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.lineTo(-pointerSize, -pointerSize/2);
-    ctx.lineTo(-pointerSize, pointerSize/2);
+    ctx.lineTo(-pointerSize + 5, -pointerSize/2 + 2);
+    ctx.lineTo(-pointerSize + 5, pointerSize/2 - 2);
     ctx.closePath();
-    ctx.fillStyle = "#333";
-    ctx.shadowColor = "rgba(0,0,0,0.3)";
-    ctx.shadowBlur = 5;
+    ctx.fillStyle = "#E74C3C";
+    ctx.shadowBlur = 0;
     ctx.fill();
+    
     ctx.restore();
   };
 
@@ -210,21 +247,35 @@ export default function Wheel() {
     setIsSpinning(true);
     setWinner(null);
 
-    const spinDuration = 3000;
-    const spinRevolutions = 5; // 轉 5 圈
+    const spinDuration = 4000; // 增加到 4 秒讓動畫更流暢
+    const spinRevolutions = 6; // 轉 6 圈
     const targetIndex = Math.floor(Math.random() * items.length);
     const sliceAngle = (2 * Math.PI) / items.length;
     
     // 計算目標旋轉角度
-    // 要讓 targetIndex 的扇形中心對準指針（0度位置）
-    // 扇形 i 的中心角度 = baseOffset + i * sliceAngle + rotation = i * sliceAngle + rotation - sliceAngle/2
-    // 要讓這個角度 = 0（或 2π 的倍數）
-    // 所以 rotation = sliceAngle/2 - i * sliceAngle = -targetIndex * sliceAngle + sliceAngle/2
-    // 但我們要轉很多圈，所以加上 spinRevolutions * 2π
-    // 再加一點隨機偏移讓結果不要太死板
+    // 扇形 i 的範圍是 [rotation + i*sliceAngle, rotation + (i+1)*sliceAngle]
+    // 指針在 0 度位置
+    // 要讓扇形 i 的中心對準 0 度，需要：
+    // rotation + i*sliceAngle + sliceAngle/2 = 0 (mod 2π)
+    // rotation = -i*sliceAngle - sliceAngle/2
+    // 
+    // 最終旋轉角度 = 起始角度 + 轉動量
+    // 轉動量 = spinRevolutions * 2π + (目標角度 - 當前角度)
     
-    const randomOffset = (Math.random() - 0.5) * sliceAngle * 0.6; // 在扇形內隨機偏移
-    const targetRotation = spinRevolutions * 2 * Math.PI - targetIndex * sliceAngle + randomOffset;
+    const currentNormalizedRotation = rotation % (2 * Math.PI);
+    const targetAngle = -targetIndex * sliceAngle - sliceAngle / 2;
+    
+    // 確保順時針旋轉（正向）
+    let angleDiff = targetAngle - currentNormalizedRotation;
+    // 標準化到 [-π, π]
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+    // 確保是正向旋轉（加上完整圈數）
+    if (angleDiff > 0) angleDiff -= 2 * Math.PI;
+    
+    // 加入小範圍隨機偏移（在扇形中心附近）
+    const randomOffset = (Math.random() - 0.5) * sliceAngle * 0.5;
+    const totalRotation = spinRevolutions * 2 * Math.PI + Math.abs(angleDiff) + randomOffset;
 
     const startTime = performance.now();
     const startRotation = rotation;
@@ -232,24 +283,24 @@ export default function Wheel() {
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / spinDuration, 1);
-      // 使用 ease-out cubic 讓減速更自然
-      const ease = 1 - Math.pow(1 - progress, 3);
-      const currentRotation = startRotation + targetRotation * ease;
+      
+      // 使用更平滑的 ease-out 曲線
+      const ease = 1 - Math.pow(1 - progress, 4);
+      const currentRotation = startRotation - totalRotation * ease;
       setRotation(currentRotation);
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         setIsSpinning(false);
-        const winnerName = items[targetIndex];
-        setWinner(winnerName);
+        setWinner(items[targetIndex]);
         triggerConfetti();
         
         // 如果啟用了移除獲獎者選項，則移除該項目
         if (removeWinnerAfterSpin) {
           setTimeout(() => {
             removeWinnerFromList(targetIndex);
-          }, 1500); // 延遲 1.5 秒後移除，讓用戶看到結果
+          }, 1500);
         }
       }
     };
@@ -262,6 +313,15 @@ export default function Wheel() {
     const removedItem = newItems.splice(index, 1)[0];
     updateItems(newItems);
     toast.info(`已將「${removedItem}」從名單中移除`);
+  };
+
+  // 重置名單功能
+  const resetToDefault = () => {
+    const defaultItems = getDefaultItems();
+    if (defaultItems.length > 0) {
+      updateItems([...defaultItems]);
+      toast.success("已重置為預設名單");
+    }
   };
 
   const triggerConfetti = () => {
@@ -512,6 +572,16 @@ Notion"
             <Button variant="outline" size="sm" onClick={shuffleItems} className="flex-1">
               <Shuffle className="mr-2 h-3 w-3" /> 打亂順序
             </Button>
+            {hasChanges() && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={resetToDefault}
+                className="flex-1 text-primary hover:text-primary"
+              >
+                <RotateCcw className="mr-2 h-3 w-3" /> 重置名單
+              </Button>
+            )}
             <Button 
               variant="outline" 
               size="sm" 
