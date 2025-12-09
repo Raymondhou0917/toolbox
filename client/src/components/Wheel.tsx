@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, Shuffle, Plus, Check, X, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
@@ -82,6 +83,12 @@ export default function Wheel() {
   const [editingName, setEditingName] = useState("");
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
+  
+  // 新增：中獎後移除獲獎者選項
+  const [removeWinnerAfterSpin, setRemoveWinnerAfterSpin] = useState(() => {
+    const saved = localStorage.getItem("wheel-remove-winner");
+    return saved === "true";
+  });
 
   // 儲存到 localStorage
   useEffect(() => {
@@ -91,6 +98,10 @@ export default function Wheel() {
   useEffect(() => {
     localStorage.setItem("wheel-active-group", String(activeGroupId));
   }, [activeGroupId]);
+
+  useEffect(() => {
+    localStorage.setItem("wheel-remove-winner", String(removeWinnerAfterSpin));
+  }, [removeWinnerAfterSpin]);
 
   // 取得當前選中的名單組
   const activeGroup = listGroups.find(g => g.id === activeGroupId) || listGroups[0];
@@ -129,9 +140,14 @@ export default function Wheel() {
       return;
     }
 
+    // 繪製扇形
+    // 指針在右側（0度位置），所以第一個扇形的中心應該在 0 度
+    // 為了讓 index 0 的扇形中心對準指針，需要偏移 -sliceAngle/2
+    const baseOffset = -sliceAngle / 2;
+    
     items.forEach((item, index) => {
-      const startAngle = index * sliceAngle + rotation;
-      const endAngle = (index + 1) * sliceAngle + rotation;
+      const startAngle = baseOffset + index * sliceAngle + rotation;
+      const endAngle = baseOffset + (index + 1) * sliceAngle + rotation;
 
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
@@ -168,7 +184,7 @@ export default function Wheel() {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Draw pointer
+    // Draw pointer (在右側)
     const pointerSize = 40;
     ctx.save();
     ctx.translate(centerX + radius + 10, centerY);
@@ -195,33 +211,57 @@ export default function Wheel() {
     setWinner(null);
 
     const spinDuration = 3000;
-    const spinRevolutions = 5;
+    const spinRevolutions = 5; // 轉 5 圈
     const targetIndex = Math.floor(Math.random() * items.length);
     const sliceAngle = (2 * Math.PI) / items.length;
-    const targetRotation = spinRevolutions * 2 * Math.PI - (targetIndex * sliceAngle) - (sliceAngle / 2);
-    const randomOffset = (Math.random() - 0.5) * (sliceAngle * 0.8);
-    const finalRotation = targetRotation + randomOffset;
+    
+    // 計算目標旋轉角度
+    // 要讓 targetIndex 的扇形中心對準指針（0度位置）
+    // 扇形 i 的中心角度 = baseOffset + i * sliceAngle + rotation = i * sliceAngle + rotation - sliceAngle/2
+    // 要讓這個角度 = 0（或 2π 的倍數）
+    // 所以 rotation = sliceAngle/2 - i * sliceAngle = -targetIndex * sliceAngle + sliceAngle/2
+    // 但我們要轉很多圈，所以加上 spinRevolutions * 2π
+    // 再加一點隨機偏移讓結果不要太死板
+    
+    const randomOffset = (Math.random() - 0.5) * sliceAngle * 0.6; // 在扇形內隨機偏移
+    const targetRotation = spinRevolutions * 2 * Math.PI - targetIndex * sliceAngle + randomOffset;
 
     const startTime = performance.now();
-    const startRotation = rotation % (2 * Math.PI);
+    const startRotation = rotation;
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / spinDuration, 1);
+      // 使用 ease-out cubic 讓減速更自然
       const ease = 1 - Math.pow(1 - progress, 3);
-      const currentRotation = startRotation + finalRotation * ease;
+      const currentRotation = startRotation + targetRotation * ease;
       setRotation(currentRotation);
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         setIsSpinning(false);
-        setWinner(items[targetIndex]);
+        const winnerName = items[targetIndex];
+        setWinner(winnerName);
         triggerConfetti();
+        
+        // 如果啟用了移除獲獎者選項，則移除該項目
+        if (removeWinnerAfterSpin) {
+          setTimeout(() => {
+            removeWinnerFromList(targetIndex);
+          }, 1500); // 延遲 1.5 秒後移除，讓用戶看到結果
+        }
       }
     };
 
     requestAnimationFrame(animate);
+  };
+
+  const removeWinnerFromList = (index: number) => {
+    const newItems = [...items];
+    const removedItem = newItems.splice(index, 1)[0];
+    updateItems(newItems);
+    toast.info(`已將「${removedItem}」從名單中移除`);
   };
 
   const triggerConfetti = () => {
@@ -353,6 +393,21 @@ export default function Wheel() {
           >
             {isSpinning ? "轉動中..." : "開始抽獎"}
           </Button>
+          
+          {/* 中獎後移除獲獎者選項 */}
+          <div className="flex items-center space-x-2 mt-4">
+            <Checkbox 
+              id="remove-winner" 
+              checked={removeWinnerAfterSpin}
+              onCheckedChange={(checked) => setRemoveWinnerAfterSpin(checked === true)}
+            />
+            <label 
+              htmlFor="remove-winner" 
+              className="text-sm text-muted-foreground cursor-pointer select-none"
+            >
+              中獎後自動移除獲獎者
+            </label>
+          </div>
         </CardContent>
       </Card>
 
