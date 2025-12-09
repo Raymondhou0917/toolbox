@@ -4,6 +4,14 @@
 
 ---
 
+## [1.2.4] - 2025-12-09
+
+### 文件更新
+- 新增成果網址到 README.md：[tool.lifehacker.tw](https://tool.lifehacker.tw)
+- 建立 GitHub Release v1.2.4
+
+---
+
 ## [1.2.3] - 2025-12-09
 
 ### 修正
