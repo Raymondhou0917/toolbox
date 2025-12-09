@@ -66,7 +66,7 @@ export default function Tools() {
   const tools = [
     {
       title: "抽獎工具集",
-      description: "包含幸運輪盤、數字抽獎、配對分組三種功能，支援自訂名單、本地暫存，讓抽獎過程充滿樂趣與期待。",
+      description: "包含幸運輪盤、數字抽獎、配對分組三種功能，支援自訂名單、雲端同步，讓抽獎過程充滿樂趣與期待。",
       icon: <Disc className="w-8 h-8" />,
       href: "/lottery",
       color: "#21A4B1",
@@ -108,7 +108,7 @@ export default function Tools() {
           </div>
           <nav className="hidden md:flex gap-6 text-sm font-medium text-muted-foreground">
             <a href="https://raymondhouch.com/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">關於我們</a>
-            <a href="https://lifehacker.tw" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">更多資源、課程</a>
+            <a href="https://lifehacker.tw" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors" style={{color: '#e77e47', fontWeight: '700'}}>更多資源、課程</a>
             <a href="https://portaly.cc/notionhacker" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">社群媒體</a>
           </nav>
         </div>
@@ -159,7 +159,7 @@ export default function Tools() {
                 alt="Power by Lifehacker" 
                 className="h-6 opacity-80 hover:opacity-100 transition-opacity"
               />
-              <span>© 2025 雷蒙三十</span>
+              <span>© 雷蒙三十</span>
             </div>
           </div>
           <div className="flex items-center gap-6">

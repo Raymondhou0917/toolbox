@@ -88,8 +88,9 @@ export default function NumberDraw() {
   };
 
   const triggerConfetti = () => {
-    const duration = 3000;
+    const duration = 2000; // 縮短為 2 秒
     const end = Date.now() + duration;
+    const confettiColors = ["#21A4B1", "#E77E47", "#F1C40F", "#9B59B6", "#E74C3C", "#1ABC9C", "#3498DB", "#2ECC71"]; // 多彩色
 
     (function frame() {
       confetti({
@@ -97,14 +98,14 @@ export default function NumberDraw() {
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ["#21A4B1", "#E77E47"]
+        colors: confettiColors
       });
       confetti({
         particleCount: 3,
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ["#21A4B1", "#E77E47"]
+        colors: confettiColors
       });
 
       if (Date.now() < end) {

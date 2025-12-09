@@ -1,12 +1,17 @@
 import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import Wheel from "@/components/Wheel";
 import NumberDraw from "@/components/NumberDraw";
 import GroupGenerator from "@/components/GroupGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Disc, Hash, Users, Timer, LayoutGrid } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Disc, Hash, Users, LogIn, LogOut, User, Timer, LayoutGrid } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
+  const { user, loading, isAuthenticated, logout } = useAuth();
+
   const [activeTab, setActiveTab] = useState("wheel");
 
   return (
@@ -52,6 +57,37 @@ export default function Home() {
               </a>
               <a href="https://raymondhouch.com/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">關於我們</a>
             </nav>
+            {loading ? (
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+            ) : isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="hidden md:block font-medium text-foreground">{user?.name || '使用者'}</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => logout()}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden md:inline ml-1">登出</span>
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => window.location.href = getLoginUrl()}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <LogIn className="w-4 h-4 mr-1" />
+                登入
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -64,7 +100,7 @@ export default function Home() {
               讓運氣決定你的<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">下一步</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              無論是抽獎、分組還是隨機選號，我們提供最直覺、美觀的工具，<br className="hidden md:block" />讓決策過程充滿樂趣與期待。
+              無論是抽獎、分組還是隨機選號，一個好看的工具，幫你解決！
             </p>
           </div>
 
