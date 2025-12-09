@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Trash2, Shuffle, Save, Plus, Check, X, Pencil, History, RotateCcw } from "lucide-react";
+import { Trash2, Shuffle, Plus, Check, X, Pencil, History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 // 預設名單組
@@ -55,12 +53,9 @@ interface ListGroup {
   id: string | number;
   name: string;
   items: string[];
-  isCloud?: boolean;
 }
 
 export default function Wheel() {
-  const { user, isAuthenticated } = useAuth();
-  
   // 從 localStorage 載入名單組
   const [listGroups, setListGroups] = useState<ListGroup[]>(() => {
     const saved = localStorage.getItem("wheel-list-groups");
@@ -104,36 +99,6 @@ export default function Wheel() {
       }
     }
     return [];
-  });
-
-  // 雲端同步
-  const { data: cloudLists, refetch: refetchCloudLists } = trpc.lists.getByType.useQuery(
-    { listType: "wheel" },
-    { enabled: isAuthenticated }
-  );
-
-  const createListMutation = trpc.lists.create.useMutation({
-    onSuccess: () => {
-      refetchCloudLists();
-      toast.success("名單已儲存到雲端");
-    },
-    onError: () => {
-      toast.error("儲存失敗，請稍後再試");
-    },
-  });
-
-  const updateListMutation = trpc.lists.update.useMutation({
-    onSuccess: () => {
-      refetchCloudLists();
-      toast.success("名單已更新");
-    },
-  });
-
-  const deleteListMutation = trpc.lists.delete.useMutation({
-    onSuccess: () => {
-      refetchCloudLists();
-      toast.success("名單已刪除");
-    },
   });
 
   // 儲存到 localStorage
@@ -350,28 +315,6 @@ export default function Wheel() {
     const newItems = [...items];
     newItems.splice(index, 1);
     updateItems(newItems);
-  };
-
-  const saveToCloud = async () => {
-    if (!isAuthenticated) {
-      toast.error("請先登入以儲存名單到雲端");
-      return;
-    }
-
-    const existingCloudList = cloudLists?.find(l => l.name === activeGroup.name);
-    
-    if (existingCloudList) {
-      updateListMutation.mutate({
-        id: existingCloudList.id,
-        items: items,
-      });
-    } else {
-      createListMutation.mutate({
-        listType: "wheel",
-        name: activeGroup.name,
-        items: items,
-      });
-    }
   };
 
   const addNewGroup = () => {
@@ -620,18 +563,6 @@ Notion"
               <Trash2 className="mr-2 h-3 w-3" /> 刪除名單組
             </Button>
           </div>
-
-          {/* 雲端儲存按鈕 */}
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            onClick={saveToCloud}
-            disabled={!isAuthenticated || createListMutation.isPending || updateListMutation.isPending}
-            className="w-full"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {isAuthenticated ? "儲存到雲端" : "登入後可儲存到雲端"}
-          </Button>
 
           {/* 名單項目預覽 */}
           <div className="max-h-[200px] overflow-y-auto space-y-1 pr-2">

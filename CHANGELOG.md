@@ -4,6 +4,15 @@
 
 ---
 
+## [1.2.3] - 2025-12-09
+
+### 修正
+- **修復 Zeabur 部署失敗問題**：移除 Manus 專案特有的認證系統依賴（useAuth、tRPC）
+- 移除 index.html 中的分析腳本（VITE_ANALYTICS_ENDPOINT、VITE_ANALYTICS_WEBSITE_ID）
+- 移除雲端儲存功能，改為純 LocalStorage 本地儲存
+
+---
+
 ## [1.2.2] - 2025-12-09
 
 ### 改進
