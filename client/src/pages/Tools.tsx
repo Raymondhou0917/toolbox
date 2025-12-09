@@ -66,7 +66,7 @@ export default function Tools() {
   const tools = [
     {
       title: "抽獎工具集",
-      description: "包含幸運輪盤、數字抽獎、配對分組三種功能，支援自訂名單、雲端同步，讓抽獎過程充滿樂趣與期待。",
+      description: "包含幸運輪盤、數字抽獎、配對分組三種功能，支援自訂名單、本地暫存，讓抽獎過程充滿樂趣與期待。",
       icon: <Disc className="w-8 h-8" />,
       href: "/lottery",
       color: "#21A4B1",

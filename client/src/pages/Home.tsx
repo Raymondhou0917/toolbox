@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import Wheel from "@/components/Wheel";
 import NumberDraw from "@/components/NumberDraw";
 import GroupGenerator from "@/components/GroupGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Disc, Hash, Users, LogIn, LogOut, User, Timer, LayoutGrid } from "lucide-react";
+import { Disc, Hash, Users, Timer, LayoutGrid } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
-  const { user, loading, isAuthenticated, logout } = useAuth();
-
   const [activeTab, setActiveTab] = useState("wheel");
 
   return (
@@ -57,37 +52,6 @@ export default function Home() {
               </a>
               <a href="https://raymondhouch.com/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">關於我們</a>
             </nav>
-            {loading ? (
-              <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
-            ) : isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="hidden md:block font-medium text-foreground">{user?.name || '使用者'}</span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => logout()}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden md:inline ml-1">登出</span>
-                </Button>
-              </div>
-            ) : (
-              <Button 
-                variant="default" 
-                size="sm" 
-                onClick={() => window.location.href = getLoginUrl()}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <LogIn className="w-4 h-4 mr-1" />
-                登入
-              </Button>
-            )}
           </div>
         </div>
       </header>
