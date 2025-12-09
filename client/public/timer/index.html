@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>課程倒數計時器 - 雷蒙三十</title>
+  
+  <!-- Open Graph / Facebook / Discord 預覽標籤 -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tool.lifehacker.tw/timer/">
+  <meta property="og:title" content="課程倒數計時器 - 雷蒙三十">
+  <meta property="og:description" content="自訂模式與時間、支援 Notion iFrame、可嵌入 OBS 的簡約倒數計時器，適合教學、練習、專注使用，免費開源使用。">
+  <meta property="og:image" content="https://timer.lifehacker.tw/timer-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  
+  <!-- Twitter 預覽標籤 -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://tool.lifehacker.tw/timer/">
+  <meta property="twitter:title" content="課程倒數計時器 - 雷蒙三十">
+  <meta property="twitter:description" content="一個簡潔的課程倒數計時器，課程開場、中場休息及練習時間。">
+  <meta property="twitter:image" content="https://timer.lifehacker.tw/timer-cover.jpg">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Footer 樣式 */
+    .tool-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 12px 20px;
+      z-index: 100;
+    }
+    .tool-footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+    .tool-footer-label {
+      color: #64748b;
+      font-size: 13px;
+    }
+    .tool-footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tool-footer-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #21A4B1;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .tool-footer-link:hover {
+      color: #E77E47;
+    }
+    .tool-footer-link svg {
+      width: 16px;
+      height: 16px;
+    }
+    .tool-footer-divider {
+      width: 1px;
+      height: 16px;
+      background: #e2e8f0;
+    }
+    .tool-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 12px;
+    }
+    .tool-footer-brand img {
+      height: 18px;
+      opacity: 0.8;
+    }
+    .tool-footer-brand a {
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .tool-footer-brand a:hover {
+      color: #21A4B1;
+    }
+    /* 調整 body padding 避免被 footer 遮擋 */
+    body {
+      padding-bottom: 60px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 粒子背景 -->
+  <div class="particles" id="particles"></div>
+  
+  <!-- 光暗動畫 -->
+  <div class="glow" style="top: 20%; left: 10%;"></div>
+  <div class="glow" style="top: 60%; left: 70%;"></div>
+  
+
+
+  <div class="container">
+    <!-- 模式標語（大字顯示在毛玻璃上方） -->
+    <div class="mode-title" id="mode-title">☕ 來杯咖啡放鬆一下，稍後見！</div>
+    
+
+    <div class="brand-slogan">聰明工作·好好生活</div>
+    <div class="timer" id="timer">03:00</div>
+    
+    <!-- 聲音波形動畫 (預設隱藏) -->
+    <div class="sound-waves" id="soundWaves">
+      <div class="wave-container">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+      </div>
+    </div>
+    
+    <div class="mode-buttons">
+      <button class="btn btn-mode active" data-mode="break" data-title="☕ 來杯咖啡放鬆一下，稍後見！">休息</button>
+      <button class="btn btn-mode" data-mode="start" data-title="🎬 準備開始，確認聲音、滑鼠、鍵盤就位！">開場</button>
+      <button class="btn btn-mode" data-mode="practice" data-title="🤜🏼 動手練習操作，有問題隨時發問！">練習</button>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-preset" data-minutes="5">5 分鐘</button>
+      <button class="btn btn-preset" data-minutes="10">10 分鐘</button>
+      <button class="btn btn-adjust" data-adjust="-1">-1</button>
+      <button class="btn btn-adjust" data-adjust="1">+1</button>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-action btn-start" id="startBtn">開始</button>
+      <button class="btn btn-action btn-reset" id="resetBtn">重設</button>
+      <button class="btn btn-action btn-music" id="musicBtn">🎵</button>
+    </div>
+    
+    <!-- 音樂播放器 (完全隱藏) -->
+    <div style="display:none;">
+      <audio id="musicPlayer" preload="auto" loop>
+        <source src="10 Minute timer LoFi relaxing Chillhop background music - 01.mp3" type="audio/mpeg">
+        您的瀏覽器不支援音频元素。
+      </audio>
+    </div>
+    
+    <!-- Powered by Lifehacker 放在毛玻璃下置中 -->
+    <a href="https://lifehacker.tw" target="_blank" class="powered-by">
+      <img src="power by lifehacker.png" alt="Powered by Lifehacker" height="24">
+    </a>
+  </div>
+
+  <svg class="background" preserveAspectRatio="none" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+    <path class="mountain" d="M0,400L60,360C120,320,240,240,360,253.3C480,267,600,373,720,453.3C840,533,960,587,1080,573.3C1200,560,1320,480,1380,440L1440,400L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z" />
+    <circle class="sun" cx="1300" cy="160" r="40" />
+    <circle class="small-sun" cx="200" cy="250" r="20" />
+  </svg>
+
+  <!-- 左下角雷蒙三十 Logo -->
+  <a href="https://raymondhouch.com/" target="_blank" class="brand">
+    <img src="彩色 Logo 雷蒙三十.png" alt="雷蒙三十" height="40">
+  </a>
+
+  <!-- Footer 工具切換連結 -->
+  <footer class="tool-footer">
+    <div class="tool-footer-content">
+      <span class="tool-footer-label">其他工具：</span>
+      <div class="tool-footer-links">
+        <a href="/lottery" class="tool-footer-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          抽獎工具集
+        </a>
+        <a href="/" class="tool-footer-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          所有工具
+        </a>
+      </div>
+      <div class="tool-footer-divider"></div>
+      <div class="tool-footer-brand">
+        <img src="power by lifehacker.png" alt="Lifehacker">
+        <span>© 2025</span>
+        <a href="https://raymondhouch.com/" target="_blank">雷蒙三十</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
