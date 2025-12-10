@@ -257,7 +257,7 @@ export default function Wheel() {
           setTimeout(() => {
             const newItems = items.filter((_, i) => i !== targetIndex);
             updateItems(newItems);
-            toast.info(\`已將「\${winnerName}」從名單中移除\`);
+            toast.info(`已將「${winnerName}」從名單中移除`);
           }, 1500);
         }
       }
@@ -321,7 +321,7 @@ export default function Wheel() {
     if (!newGroupName.trim()) return;
     
     const newGroup: ListGroup = {
-      id: \`custom-\${Date.now()}\`,
+      id: `custom-${Date.now()}`,
       name: newGroupName.trim(),
       items: [],
     };
@@ -402,11 +402,11 @@ export default function Wheel() {
             <button
               id="remove-winner"
               onClick={() => setRemoveWinnerAfterSpin(!removeWinnerAfterSpin)}
-              className={\`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors \${
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                 removeWinnerAfterSpin 
                   ? "bg-primary border-primary text-white" 
                   : "border-muted-foreground/30 hover:border-primary"
-              }\`}
+              }`}
             >
               {removeWinnerAfterSpin && <Check className="w-3 h-3" />}
             </button>
@@ -435,12 +435,11 @@ export default function Wheel() {
                 {spinHistory.map((record, index) => (
                   <div 
                     key={index} 
-                    className={\`flex items-center justify-between p-2 rounded-md text-sm \${
+                    className={`flex items-center justify-between p-2 rounded-md text-sm ${
                       index === 0 ? "bg-secondary/10 border border-secondary/20" : "bg-muted/50"
-                    }\`}
+                    }`}
                   >
-                    <span className={\`font-medium \${index === 0 ? "text-secondary" : "text-foreground"}\`}>
-                      {record.name}
+                    <span className={`font-medium ${index === 0 ? "text-secondary" : "text-foreground"}`}>                      {record.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {record.time.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}
@@ -469,11 +468,11 @@ export default function Wheel() {
               <button
                 key={group.id}
                 onClick={() => setActiveGroupId(group.id)}
-                className={\`px-3 py-1.5 rounded-full text-sm font-medium transition-all \${
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                   activeGroupId === group.id
                     ? "bg-primary text-white shadow-md"
                     : "bg-muted hover:bg-muted/80 text-foreground"
-                }\`}
+                }`}
               >
                 {group.name}
               </button>
