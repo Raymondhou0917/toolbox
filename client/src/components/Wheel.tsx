@@ -377,16 +377,18 @@ export default function Wheel() {
             />
           </div>
           
-          <div className="mt-8 text-center h-16">
-            {winner ? (
-              <div className="animate-in zoom-in duration-500">
-                <p className="text-sm text-muted-foreground mb-1">恭喜獲得</p>
-                <p className="text-3xl font-black text-secondary">{winner}</p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-lg">{isSpinning ? "抽獎中..." : ""}</p>
-            )}
-          </div>
+          {(winner || isSpinning) && (
+            <div className="mt-8 text-center h-16">
+              {winner ? (
+                <div className="animate-in zoom-in duration-500">
+                  <p className="text-sm text-muted-foreground mb-1">恭喜獲得</p>
+                  <p className="text-3xl font-black text-secondary">{winner}</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-lg">抽獎中...</p>
+              )}
+            </div>
+          )}
 
           <Button 
             size="lg" 
