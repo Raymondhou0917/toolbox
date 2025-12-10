@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Trash2, Shuffle, Save, Plus, Check, X, Pencil, History, RotateCcw } from "lucide-react";
+import { Trash2, Shuffle, Plus, Check, X, Pencil, History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 // 預設名單組
@@ -55,12 +53,9 @@ interface ListGroup {
   id: string | number;
   name: string;
   items: string[];
-  isCloud?: boolean;
 }
 
 export default function Wheel() {
-  const { user, isAuthenticated } = useAuth();
-  
   // 從 localStorage 載入名單組
   const [listGroups, setListGroups] = useState<ListGroup[]>(() => {
     const saved = localStorage.getItem("wheel-list-groups");
@@ -104,36 +99,6 @@ export default function Wheel() {
       }
     }
     return [];
-  });
-
-  // 雲端同步
-  const { data: cloudLists, refetch: refetchCloudLists } = trpc.lists.getByType.useQuery(
-    { listType: "wheel" },
-    { enabled: isAuthenticated }
-  );
-
-  const createListMutation = trpc.lists.create.useMutation({
-    onSuccess: () => {
-      refetchCloudLists();
-      toast.success("名單已儲存到雲端");
-    },
-    onError: () => {
-      toast.error("儲存失敗，請稍後再試");
-    },
-  });
-
-  const updateListMutation = trpc.lists.update.useMutation({
-    onSuccess: () => {
-      refetchCloudLists();
-      toast.success("名單已更新");
-    },
-  });
-
-  const deleteListMutation = trpc.lists.delete.useMutation({
-    onSuccess: () => {
-      refetchCloudLists();
-      toast.success("名單已刪除");
-    },
   });
 
   // 儲存到 localStorage
@@ -292,7 +257,7 @@ export default function Wheel() {
           setTimeout(() => {
             const newItems = items.filter((_, i) => i !== targetIndex);
             updateItems(newItems);
-            toast.info(`已將「${winnerName}」從名單中移除`);
+            toast.info(\`已將「\${winnerName}」從名單中移除\`);
           }, 1500);
         }
       }
@@ -302,9 +267,9 @@ export default function Wheel() {
   };
 
   const triggerConfetti = () => {
-    const duration = 2000; // 縮短為 2 秒
+    const duration = 2000;
     const end = Date.now() + duration;
-    const confettiColors = ["#21A4B1", "#E77E47", "#F1C40F", "#9B59B6", "#E74C3C", "#1ABC9C", "#3498DB", "#2ECC71"]; // 多彩色
+    const confettiColors = ["#21A4B1", "#E77E47", "#F1C40F", "#9B59B6", "#E74C3C", "#1ABC9C", "#3498DB", "#2ECC71"];
 
     (function frame() {
       confetti({
@@ -352,33 +317,11 @@ export default function Wheel() {
     updateItems(newItems);
   };
 
-  const saveToCloud = async () => {
-    if (!isAuthenticated) {
-      toast.error("請先登入以儲存名單到雲端");
-      return;
-    }
-
-    const existingCloudList = cloudLists?.find(l => l.name === activeGroup.name);
-    
-    if (existingCloudList) {
-      updateListMutation.mutate({
-        id: existingCloudList.id,
-        items: items,
-      });
-    } else {
-      createListMutation.mutate({
-        listType: "wheel",
-        name: activeGroup.name,
-        items: items,
-      });
-    }
-  };
-
   const addNewGroup = () => {
     if (!newGroupName.trim()) return;
     
     const newGroup: ListGroup = {
-      id: `custom-${Date.now()}`,
+      id: \`custom-\${Date.now()}\`,
       name: newGroupName.trim(),
       items: [],
     };
@@ -459,11 +402,11 @@ export default function Wheel() {
             <button
               id="remove-winner"
               onClick={() => setRemoveWinnerAfterSpin(!removeWinnerAfterSpin)}
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+              className={\`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors \${
                 removeWinnerAfterSpin 
                   ? "bg-primary border-primary text-white" 
                   : "border-muted-foreground/30 hover:border-primary"
-              }`}
+              }\`}
             >
               {removeWinnerAfterSpin && <Check className="w-3 h-3" />}
             </button>
@@ -492,11 +435,11 @@ export default function Wheel() {
                 {spinHistory.map((record, index) => (
                   <div 
                     key={index} 
-                    className={`flex items-center justify-between p-2 rounded-md text-sm ${
+                    className={\`flex items-center justify-between p-2 rounded-md text-sm \${
                       index === 0 ? "bg-secondary/10 border border-secondary/20" : "bg-muted/50"
-                    }`}
+                    }\`}
                   >
-                    <span className={`font-medium ${index === 0 ? "text-secondary" : "text-foreground"}`}>
+                    <span className={\`font-medium \${index === 0 ? "text-secondary" : "text-foreground"}\`}>
                       {record.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -526,11 +469,11 @@ export default function Wheel() {
               <button
                 key={group.id}
                 onClick={() => setActiveGroupId(group.id)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                className={\`px-3 py-1.5 rounded-full text-sm font-medium transition-all \${
                   activeGroupId === group.id
                     ? "bg-primary text-white shadow-md"
                     : "bg-muted hover:bg-muted/80 text-foreground"
-                }`}
+                }\`}
               >
                 {group.name}
               </button>
@@ -620,18 +563,6 @@ Notion"
               <Trash2 className="mr-2 h-3 w-3" /> 刪除名單組
             </Button>
           </div>
-
-          {/* 雲端儲存按鈕 */}
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            onClick={saveToCloud}
-            disabled={!isAuthenticated || createListMutation.isPending || updateListMutation.isPending}
-            className="w-full"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {isAuthenticated ? "儲存到雲端" : "登入後可儲存到雲端"}
-          </Button>
 
           {/* 名單項目預覽 */}
           <div className="max-h-[200px] overflow-y-auto space-y-1 pr-2">
